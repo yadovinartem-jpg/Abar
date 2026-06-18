@@ -1,0 +1,183 @@
+import { useMemo, useState, useRef, useEffect } from "react";
+import { Filter, ChevronDown, ChevronUp, Shuffle, Star } from "lucide-react";
+import { useLibrary } from "@/stores/libraryStore";
+import { usePlayer } from "@/stores/playerStore";
+import TrackRow from "./TrackRow";
+import EditTrackModal from "./EditTrackModal";
+import TagEditorModal from "./TagEditorModal";
+import type { SortField, SortDirection } from "@/types/music";
+import { cn } from "@/lib/utils";
+
+export default function TracksList() {
+  const tracks = useLibrary((s) => s.tracks);
+  const player = usePlayer();
+  const [sort, setSort] = useState<SortField>("date");
+  const [dir, setDir] = useState<SortDirection>("desc");
+  const [yearFilter, setYearFilter] = useState<number | null>(null);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [yearOpen, setYearOpen] = useState(false);
+  const filterRef = useRef<HTMLDivElement>(null);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [tagId, setTagId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (!filterRef.current?.contains(e.target as Node)) {
+        setFilterOpen(false);
+        setYearOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
+
+  const sorted = useMemo(() => {
+    let list = [...tracks];
+    if (yearFilter) list = list.filter((t) => t.year === yearFilter);
+    list.sort((a, b) => {
+      let r = 0;
+      if (sort === "date") r = a.addedAt - b.addedAt;
+      else if (sort === "title") r = a.title.localeCompare(b.title);
+      else if (sort === "artist") r = a.artist.localeCompare(b.artist);
+      else if (sort === "year") r = a.year - b.year;
+      return dir === "asc" ? r : -r;
+    });
+    return list;
+  }, [tracks, sort, dir, yearFilter]);
+
+  const years = useMemo(() => Array.from(new Set(tracks.map((t) => t.year))).sort((a, b) => b - a), [tracks]);
+
+  const playFrom = (idx: number) => player.loadQueue(sorted, idx);
+  const shuffleAll = () => {
+    const list = [...sorted].sort(() => Math.random() - 0.5);
+    player.loadQueue(list, 0);
+  };
+  const playByRating = () => {
+    const weighted = [...sorted].flatMap((t) => Array(t.rating).fill(t));
+    const list = weighted.sort(() => Math.random() - 0.5);
+    if (list.length) player.loadQueue(list, 0);
+  };
+
+  return (
+    <section>
+      <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
+        <h2 className="text-xl font-bold">Треки</h2>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={shuffleAll}
+            className="px-3 py-1.5 rounded-lg bg-elevated hover:bg-subtle text-xs flex items-center gap-1.5 font-medium"
+          >
+            <Shuffle className="size-3.5" /> Случайно
+          </button>
+          <button
+            onClick={playByRating}
+            className="px-3 py-1.5 rounded-lg bg-elevated hover:bg-subtle text-xs flex items-center gap-1.5 font-medium"
+          >
+            <Star className="size-3.5" /> По рейтингу
+          </button>
+        </div>
+        <div ref={filterRef} className="relative">
+          <button
+            onClick={() => setFilterOpen((o) => !o)}
+            className="px-3 py-1.5 rounded-lg bg-elevated hover:bg-subtle text-xs flex items-center gap-1.5 font-medium"
+          >
+            <Filter className="size-3.5" />
+            {labelOf(sort)}
+            {dir === "asc" ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />}
+          </button>
+
+          {filterOpen && (
+            <div className="absolute right-0 top-full mt-1 w-64 bg-panel border border-border rounded-xl shadow-2xl z-30 p-1 animate-scale-in">
+              <SortItem label="По умолчанию" active={sort === "default"} onClick={() => { setSort("default"); setFilterOpen(false); }} />
+              <SortItem label="По дате добавления" active={sort === "date"} onClick={() => { setSort("date"); setFilterOpen(false); }} />
+              <SortItem label="По названию" active={sort === "title"} onClick={() => { setSort("title"); setFilterOpen(false); }} />
+              <SortItem label="По исполнителю" active={sort === "artist"} onClick={() => { setSort("artist"); setFilterOpen(false); }} />
+              <div
+                className="relative"
+                onMouseEnter={() => setYearOpen(true)}
+                onMouseLeave={() => setYearOpen(false)}
+              >
+                <SortItem
+                  label={yearFilter ? `По году: ${yearFilter}` : "По году"}
+                  active={sort === "year"}
+                  onClick={() => { setSort("year"); }}
+                  hasArrow
+                />
+                {yearOpen && (
+                  <div className="absolute right-full top-0 mr-1 w-32 bg-panel border border-border rounded-xl shadow-2xl p-1 max-h-60 overflow-auto">
+                    <button
+                      onClick={() => { setYearFilter(null); }}
+                      className={cn("w-full px-3 py-1.5 rounded-lg text-left text-sm hover:bg-elevated", !yearFilter && "bg-elevated")}
+                    >Все</button>
+                    {years.map((y) => (
+                      <button
+                        key={y}
+                        onClick={() => { setYearFilter(y); setSort("year"); }}
+                        className={cn("w-full px-3 py-1.5 rounded-lg text-left text-sm hover:bg-elevated tabular-nums", yearFilter === y && "bg-elevated")}
+                      >{y}</button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="border-t border-border/60 my-1" />
+              <div className="grid grid-cols-2 gap-1 p-1">
+                <button
+                  onClick={() => setDir("asc")}
+                  className={cn("px-2 py-1.5 rounded-lg text-xs flex items-center justify-center gap-1", dir === "asc" ? "bg-brand/15 text-brand" : "hover:bg-elevated")}
+                >
+                  <ChevronUp className="size-3.5" /> Возр.
+                </button>
+                <button
+                  onClick={() => setDir("desc")}
+                  className={cn("px-2 py-1.5 rounded-lg text-xs flex items-center justify-center gap-1", dir === "desc" ? "bg-brand/15 text-brand" : "hover:bg-elevated")}
+                >
+                  <ChevronDown className="size-3.5" /> Убыв.
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="bg-panel rounded-2xl border border-border/50 p-2">
+        {sorted.map((t, i) => (
+          <TrackRow
+            key={t.id + i}
+            track={t}
+            index={i}
+            isPlaying={player.current?.id === t.id}
+            onPlay={() => playFrom(i)}
+            onEdit={() => setEditId(t.id)}
+            onTags={() => setTagId(t.id)}
+          />
+        ))}
+      </div>
+
+      <EditTrackModal trackId={editId} onClose={() => setEditId(null)} />
+      <TagEditorModal trackId={tagId} onClose={() => setTagId(null)} />
+    </section>
+  );
+}
+
+function labelOf(s: SortField) {
+  return s === "default" ? "По умолчанию"
+    : s === "date" ? "По дате"
+    : s === "title" ? "По названию"
+    : s === "artist" ? "По автору"
+    : "По году";
+}
+
+function SortItem({ label, active, onClick, hasArrow }: { label: string; active?: boolean; onClick: () => void; hasArrow?: boolean }) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "w-full px-3 py-2 rounded-lg text-left text-sm flex items-center justify-between transition-colors",
+        active ? "bg-brand/15 text-brand" : "hover:bg-elevated"
+      )}
+    >
+      <span>{label}</span>
+      {hasArrow && <ChevronDown className="size-3.5 -rotate-90" />}
+    </button>
+  );
+}

@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+@layer base {
+  :root {
+    --background: 222 28% 7%;
+    --foreground: 0 0% 96%;
+
+    --panel: 222 24% 10%;
+    --elevated: 222 22% 13%;
+    --subtle: 222 18% 18%;
+
+    --card: 222 24% 10%;
+    --card-foreground: 0 0% 96%;
+
+    --primary: 217 91% 62%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 222 18% 18%;
+    --secondary-foreground: 0 0% 96%;
+
+    --muted: 222 16% 22%;
+    --muted-foreground: 220 8% 52%;
+
+    --accent: 222 20% 16%;
+    --accent-foreground: 0 0% 96%;
+
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 222 16% 18%;
+    --input: 222 16% 18%;
+    --ring: 217 91% 62%;
+
+    --brand: 217 91% 62%;
+
+    --radius: 0.625rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html, body, #root {
+    @apply h-full;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "cv02","cv03","cv04","cv11";
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--background));
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--subtle));
+    border-radius: 8px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted));
+  }
+}
+
+@layer utilities {
+  .glass-blur {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+}
