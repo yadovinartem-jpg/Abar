@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { Upload } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -10,9 +10,9 @@ const tabs = [
   { to: "/my-music", label: "Моя музыка" },
   { to: "/search", label: "Поиск" },
   { to: "/recommendations", label: "Рекомендации" },
-  { to: "/integrations", label: "Интеграции" },
   { to: "/statistics", label: "Статистика" },
   { to: "/releases", label: "Релизы" },
+  { to: "/integrations", label: "Интеграции" },
   { to: "/radio", label: "Радио" },
 ];
 
@@ -34,12 +34,14 @@ export default function TopNav() {
 
   return (
     <div className="px-4 pt-3">
-      <div className="mx-auto max-w-[1400px] flex items-center gap-4 px-2">
-        {/* logo */}
-        <NavLink to="/my-music" className="flex items-center gap-2 mr-2">
-          <div className="size-9 rounded-xl bg-gradient-to-br from-brand to-purple-500 grid place-items-center font-extrabold text-white">а</div>
-          <div className="text-lg font-extrabold tracking-tight">абар</div>
-        </NavLink>
+      <div className="mx-auto max-w-[1280px] flex items-center gap-4 px-2">
+        {/* logo — non-clickable */}
+        <div className="flex items-center gap-2 mr-2 select-none">
+          <div className="size-8 rounded-full bg-gradient-to-br from-brand to-brand/40 grid place-items-center font-extrabold text-white text-[13px] shadow-md shadow-brand/30">
+            A
+          </div>
+          <div className="text-[15px] font-extrabold tracking-wide">ABAR</div>
+        </div>
 
         {/* tabs */}
         <nav className="flex-1 flex items-center gap-1 overflow-x-auto">

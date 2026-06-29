@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Search, ChevronDown, ChevronRight, Bookmark, BookmarkX } from "lucide-react";
 import { useLibrary } from "@/stores/libraryStore";
-import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 export default function Sidebar() {
@@ -22,7 +21,7 @@ export default function Sidebar() {
   const savedProfiles = profiles.filter((p) => saved.includes(p.id));
 
   return (
-    <div className="sticky top-[120px] space-y-3">
+    <div className="sticky top-[120px]">
       <div className="bg-panel rounded-2xl border border-border/60 overflow-hidden">
         <button
           onClick={() => setOpen((o) => !o)}
@@ -107,13 +106,6 @@ export default function Sidebar() {
             )}
           </div>
         )}
-      </div>
-
-      <div className="bg-panel rounded-2xl border border-border/60 px-4 py-3">
-        <div className="text-xs text-muted-foreground leading-relaxed">
-          <div className="font-semibold text-foreground/80 mb-1">Подсказка</div>
-          Зажмите трек правой кнопкой мыши, чтобы открыть быстрое меню. Используйте теги для удобной навигации.
-        </div>
       </div>
     </div>
   );

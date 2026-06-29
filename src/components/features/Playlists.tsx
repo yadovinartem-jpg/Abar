@@ -1,8 +1,10 @@
 import { useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Play } from "lucide-react";
+import { ChevronLeft, ChevronRight, Play, ChevronRight as ArrowRight } from "lucide-react";
 import { useLibrary } from "@/stores/libraryStore";
 import { usePlayer } from "@/stores/playerStore";
 import Modal from "./Modal";
+import PlaylistDetailModal from "./PlaylistDetailModal";
+import type { Playlist } from "@/types/music";
 
 export default function Playlists() {
   const playlists = useLibrary((s) => s.playlists);
@@ -11,13 +13,13 @@ export default function Playlists() {
   const loadQueue = usePlayer((s) => s.loadQueue);
   const scroller = useRef<HTMLDivElement>(null);
   const [showAll, setShowAll] = useState(false);
+  const [detail, setDetail] = useState<Playlist | null>(null);
   const [dragFrom, setDragFrom] = useState<number | null>(null);
 
-  const scrollBy = (dir: 1 | -1) => scroller.current?.scrollBy({ left: dir * 480, behavior: "smooth" });
+  const scrollBy = (dir: 1 | -1) =>
+    scroller.current?.scrollBy({ left: dir * 480, behavior: "smooth" });
 
-  const playPlaylist = (plId: string) => {
-    const pl = playlists.find((x) => x.id === plId);
-    if (!pl) return;
+  const playPlaylist = (pl: Playlist) => {
     const list = pl.trackIds.map((id) => tracks.find((t) => t.id === id)!).filter(Boolean);
     if (list.length) loadQueue(list, 0);
   };
@@ -25,34 +27,58 @@ export default function Playlists() {
   return (
     <section>
       <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-3">
+        <button
+          onClick={() => setShowAll(true)}
+          className="group flex items-center gap-2 hover:text-brand transition-colors"
+        >
           <h2 className="text-xl font-bold">Плейлисты</h2>
-          <button onClick={() => setShowAll(true)} className="text-xs text-brand hover:underline">показать все</button>
-        </div>
+          <ArrowRight className="size-4 text-muted-foreground group-hover:text-brand group-hover:translate-x-0.5 transition-all" />
+        </button>
         <div className="flex items-center gap-1.5">
-          <button onClick={() => scrollBy(-1)} className="size-8 rounded-full bg-elevated hover:bg-subtle grid place-items-center"><ChevronLeft className="size-4" /></button>
-          <button onClick={() => scrollBy(1)} className="size-8 rounded-full bg-elevated hover:bg-subtle grid place-items-center"><ChevronRight className="size-4" /></button>
+          <button
+            onClick={() => scrollBy(-1)}
+            className="size-8 rounded-full bg-elevated hover:bg-subtle grid place-items-center"
+          >
+            <ChevronLeft className="size-4" />
+          </button>
+          <button
+            onClick={() => scrollBy(1)}
+            className="size-8 rounded-full bg-elevated hover:bg-subtle grid place-items-center"
+          >
+            <ChevronRight className="size-4" />
+          </button>
         </div>
       </div>
 
       <div ref={scroller} className="overflow-x-auto scroll-smooth">
         <div className="flex gap-4 min-w-max pb-2">
           {playlists.map((pl) => (
-            <button
-              key={pl.id}
-              onClick={() => playPlaylist(pl.id)}
-              className="group w-[170px] text-left"
-            >
-              <div className="relative aspect-square rounded-xl overflow-hidden bg-elevated">
-                <img src={pl.cover} alt="" className="size-full object-cover transition-transform group-hover:scale-105" />
-                <div className="absolute bottom-2 right-2 size-10 rounded-full bg-brand grid place-items-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
-                  <Play className="size-5 text-white" fill="white" />
+            <div key={pl.id} className="w-[170px]">
+              <button
+                onClick={() => setDetail(pl)}
+                className="group block w-full text-left"
+              >
+                <div className="relative aspect-square rounded-xl overflow-hidden bg-elevated">
+                  <img
+                    src={pl.cover}
+                    alt=""
+                    className="size-full object-cover transition-transform group-hover:scale-105"
+                  />
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      playPlaylist(pl);
+                    }}
+                    className="absolute bottom-2 right-2 size-10 rounded-full bg-brand grid place-items-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg shadow-brand/30 hover:scale-105"
+                  >
+                    <Play className="size-5 text-white ml-0.5" fill="white" />
+                  </button>
                 </div>
-              </div>
-              <div className="mt-2 text-sm font-semibold truncate">{pl.title}</div>
-              <div className="text-xs text-muted-foreground truncate">{pl.artist}</div>
-              <div className="text-xs text-muted-foreground">{pl.year}</div>
-            </button>
+                <div className="mt-2 text-sm font-semibold truncate">{pl.title}</div>
+                <div className="text-xs text-muted-foreground truncate">{pl.artist}</div>
+                <div className="text-xs text-muted-foreground">{pl.year}</div>
+              </button>
+            </div>
           ))}
         </div>
       </div>
@@ -65,21 +91,32 @@ export default function Playlists() {
               draggable
               onDragStart={() => setDragFrom(i)}
               onDragOver={(e) => e.preventDefault()}
-              onDrop={() => { if (dragFrom !== null && dragFrom !== i) reorder(dragFrom, i); setDragFrom(null); }}
-              className="cursor-grab active:cursor-grabbing"
+              onDrop={() => {
+                if (dragFrom !== null && dragFrom !== i) reorder(dragFrom, i);
+                setDragFrom(null);
+              }}
+              onClick={() => setDetail(pl)}
+              className="cursor-pointer active:cursor-grabbing group"
             >
               <div className="aspect-square rounded-xl overflow-hidden bg-elevated">
-                <img src={pl.cover} alt="" className="size-full object-cover" />
+                <img
+                  src={pl.cover}
+                  alt=""
+                  className="size-full object-cover transition-transform group-hover:scale-[1.03]"
+                />
               </div>
               <div className="mt-2 text-sm font-semibold truncate">{pl.title}</div>
-              <div className="text-xs text-muted-foreground truncate">{pl.artist} · {pl.year}</div>
+              <div className="text-xs text-muted-foreground truncate">{pl.artist}</div>
+              <div className="text-xs text-muted-foreground">{pl.year}</div>
             </div>
           ))}
         </div>
         <div className="mt-4 text-[11px] text-muted-foreground/70">
-          Перетащите плейлист для изменения порядка.
+          Перетащите плейлист для изменения порядка. Кликните, чтобы открыть.
         </div>
       </Modal>
+
+      <PlaylistDetailModal playlist={detail} onClose={() => setDetail(null)} />
     </section>
   );
 }

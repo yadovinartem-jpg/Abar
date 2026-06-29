@@ -16,7 +16,7 @@
     --card: 222 24% 10%;
     --card-foreground: 0 0% 96%;
 
-    --primary: 217 91% 62%;
+    --primary: 264 91% 62%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 222 18% 18%;
@@ -33,9 +33,9 @@
 
     --border: 222 16% 18%;
     --input: 222 16% 18%;
-    --ring: 217 91% 62%;
+    --ring: 264 91% 62%;
 
-    --brand: 217 91% 62%;
+    --brand: 264 91% 62%;
 
     --radius: 0.625rem;
   }

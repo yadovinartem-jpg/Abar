@@ -30,6 +30,8 @@ export interface Playlist {
   year: number;
   cover: string;
   trackIds: string[];
+  listenCount?: number;
+  isPublic?: boolean;
 }
 
 export interface Artist {

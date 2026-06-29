@@ -22,10 +22,26 @@ const COVERS = [
 ];
 
 const ARTISTS_NAMES = [
-  "Хлеб", "Молчат Дома", "Pharaoh", "Скриптонит", "Oxxxymiron", "ЛСП",
-  "Аигел", "Boulevard Depo", "Slava Marlow", "Markul", "Husky", "Грибы",
+  "Хлеб", "Молчат Дома", "PHARAOH", "Скриптонит", "Oxxxymiron", "ЛСП",
+  "АИГЕЛ", "Boulevard Depo", "Slava Marlow", "Markul", "Husky", "Грибы",
   "Мумий Тролль", "Сплин", "Земфира", "Дельфин", "Каста", "Многоточие",
 ];
+
+// Canonical "Genius" names (mock normalization map)
+export const GENIUS_ARTIST_NAMES: Record<string, string> = {
+  "хлеб": "Хлеб",
+  "молчат дома": "Молчат Дома",
+  "pharaoh": "PHARAOH",
+  "скриптонит": "Скриптонит",
+  "oxxxymiron": "Oxxxymiron",
+  "лсп": "ЛСП",
+  "аигел": "АИГЕЛ",
+  "boulevard depo": "Boulevard Depo",
+  "slava marlow": "Slava Marlow",
+  "markul": "Markul",
+  "husky": "Husky",
+  "грибы": "Грибы",
+};
 
 const TITLES = [
   "Закрой глаза", "Север", "Ничей", "Бесконечность", "Гипноз", "Танцы",
@@ -36,13 +52,13 @@ const TITLES = [
 ];
 
 const TAG_COLORS = [
-  "#3b82f6", "#a855f7", "#ec4899", "#f59e0b", "#10b981",
+  "#a855f7", "#c084fc", "#ec4899", "#f59e0b", "#10b981",
   "#06b6d4", "#ef4444", "#84cc16", "#f97316", "#8b5cf6",
 ];
 
 const SAMPLE_TAGS: Tag[][] = [
   [{ id: "t1", label: "вайб", color: "#a855f7", visible: true }],
-  [{ id: "t2", label: "за рулём", color: "#3b82f6", visible: true }, { id: "t3", label: "вечер", color: "#ec4899", visible: true }],
+  [{ id: "t2", label: "за рулём", color: "#c084fc", visible: true }, { id: "t3", label: "вечер", color: "#ec4899", visible: true }],
   [{ id: "t4", label: "тренировка", color: "#f59e0b", visible: true }],
   [],
   [{ id: "t5", label: "лето", color: "#10b981", visible: true }],
@@ -92,25 +108,24 @@ export const MOCK_TRACKS: Track[] = Array.from({ length: 28 }, (_, i) => ({
 }));
 
 export const MOCK_PLAYLISTS: Playlist[] = [
-  { id: "pl-1", title: "Ночные поездки", artist: "сборник", year: 2024, cover: COVERS[0], trackIds: MOCK_TRACKS.slice(0, 8).map(t => t.id) },
-  { id: "pl-2", title: "Утро в кофейне", artist: "сборник", year: 2023, cover: COVERS[2], trackIds: MOCK_TRACKS.slice(2, 10).map(t => t.id) },
-  { id: "pl-3", title: "На пробежке", artist: "сборник", year: 2024, cover: COVERS[4], trackIds: MOCK_TRACKS.slice(5, 14).map(t => t.id) },
-  { id: "pl-4", title: "Под дождём", artist: "сборник", year: 2022, cover: COVERS[6], trackIds: MOCK_TRACKS.slice(7, 15).map(t => t.id) },
-  { id: "pl-5", title: "Вечеринка", artist: "сборник", year: 2024, cover: COVERS[8], trackIds: MOCK_TRACKS.slice(0, 12).map(t => t.id) },
-  { id: "pl-6", title: "Глубокий фокус", artist: "сборник", year: 2025, cover: COVERS[10], trackIds: MOCK_TRACKS.slice(3, 13).map(t => t.id) },
-  { id: "pl-7", title: "Зимний альбом", artist: "сборник", year: 2023, cover: COVERS[12], trackIds: MOCK_TRACKS.slice(1, 9).map(t => t.id) },
-  { id: "pl-8", title: "Дорожный микс", artist: "сборник", year: 2024, cover: COVERS[14], trackIds: MOCK_TRACKS.slice(4, 12).map(t => t.id) },
-  { id: "pl-9", title: "Сны наяву", artist: "сборник", year: 2025, cover: COVERS[16], trackIds: MOCK_TRACKS.slice(6, 14).map(t => t.id) },
-  { id: "pl-10", title: "Старые пластинки", artist: "сборник", year: 2021, cover: COVERS[1], trackIds: MOCK_TRACKS.slice(0, 6).map(t => t.id) },
-  { id: "pl-11", title: "Только бэнгеры", artist: "сборник", year: 2025, cover: COVERS[3], trackIds: MOCK_TRACKS.slice(2, 11).map(t => t.id) },
-  { id: "pl-12", title: "Меланхолия", artist: "сборник", year: 2022, cover: COVERS[5], trackIds: MOCK_TRACKS.slice(5, 15).map(t => t.id) },
+  { id: "pl-1", title: "Ночные поездки", artist: "Вы", year: 2024, cover: COVERS[0], trackIds: MOCK_TRACKS.slice(0, 8).map(t => t.id), listenCount: 1248, isPublic: true },
+  { id: "pl-2", title: "Утро в кофейне", artist: "Вы", year: 2023, cover: COVERS[2], trackIds: MOCK_TRACKS.slice(2, 10).map(t => t.id), listenCount: 832, isPublic: true },
+  { id: "pl-3", title: "На пробежке", artist: "Вы", year: 2024, cover: COVERS[4], trackIds: MOCK_TRACKS.slice(5, 14).map(t => t.id), listenCount: 421, isPublic: true },
+  { id: "pl-4", title: "Под дождём", artist: "Вы", year: 2022, cover: COVERS[6], trackIds: MOCK_TRACKS.slice(7, 15).map(t => t.id), listenCount: 612, isPublic: false },
+  { id: "pl-5", title: "Вечеринка", artist: "Вы", year: 2024, cover: COVERS[8], trackIds: MOCK_TRACKS.slice(0, 12).map(t => t.id), listenCount: 2034, isPublic: true },
+  { id: "pl-6", title: "Глубокий фокус", artist: "Вы", year: 2025, cover: COVERS[10], trackIds: MOCK_TRACKS.slice(3, 13).map(t => t.id), listenCount: 178, isPublic: true },
+  { id: "pl-7", title: "Зимний альбом", artist: "Вы", year: 2023, cover: COVERS[12], trackIds: MOCK_TRACKS.slice(1, 9).map(t => t.id), listenCount: 945, isPublic: true },
+  { id: "pl-8", title: "Дорожный микс", artist: "Вы", year: 2024, cover: COVERS[14], trackIds: MOCK_TRACKS.slice(4, 12).map(t => t.id), listenCount: 367, isPublic: true },
+  { id: "pl-9", title: "Сны наяву", artist: "Вы", year: 2025, cover: COVERS[16], trackIds: MOCK_TRACKS.slice(6, 14).map(t => t.id), listenCount: 89, isPublic: false },
+  { id: "pl-10", title: "Старые пластинки", artist: "Вы", year: 2021, cover: COVERS[1], trackIds: MOCK_TRACKS.slice(0, 6).map(t => t.id), listenCount: 1567, isPublic: true },
+  { id: "pl-11", title: "Только бэнгеры", artist: "Вы", year: 2025, cover: COVERS[3], trackIds: MOCK_TRACKS.slice(2, 11).map(t => t.id), listenCount: 723, isPublic: true },
+  { id: "pl-12", title: "Меланхолия", artist: "Вы", year: 2022, cover: COVERS[5], trackIds: MOCK_TRACKS.slice(5, 15).map(t => t.id), listenCount: 491, isPublic: true },
 ];
 
 export const MOCK_ARTISTS: Artist[] = ARTISTS_NAMES.slice(0, 16).map((name, i) => ({
   id: `artist-${i + 1}`,
   name,
   cover: COVERS[(i * 2) % COVERS.length],
-  monthlyListeners: 50000 + Math.floor(Math.random() * 950000),
 }));
 
 export const MOCK_PROFILES: UserProfile[] = [

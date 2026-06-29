@@ -1,7 +1,6 @@
 import { ReactNode, useEffect, useRef } from "react";
 import PlayerBar from "./PlayerBar";
 import TopNav from "./TopNav";
-import Sidebar from "./Sidebar";
 import Footer from "./Footer";
 import LyricsModal from "@/components/features/LyricsModal";
 import { usePlayer } from "@/stores/playerStore";
@@ -28,15 +27,10 @@ export default function MainLayout({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-background text-foreground">
       <PlayerBar />
       <TopNav />
-      <div className="mx-auto max-w-[1400px] px-6 pt-6 pb-24">
-        <div className="grid grid-cols-12 gap-6">
-          <aside className="col-span-12 lg:col-span-3 xl:col-span-3">
-            <Sidebar />
-          </aside>
-          <main className="col-span-12 lg:col-span-9 xl:col-span-9 space-y-10">
-            {children}
-            <Footer />
-          </main>
+      <div className="mx-auto max-w-[1280px] px-6 pt-6 pb-24">
+        <div className="space-y-10">
+          {children}
+          <Footer />
         </div>
       </div>
       <LyricsModal />

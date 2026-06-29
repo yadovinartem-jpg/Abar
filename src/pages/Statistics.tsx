@@ -1,4 +1,4 @@
-import { BarChart3, Clock, Music, Headphones } from "lucide-react";
+import { Clock, Music, Headphones, BarChart3 } from "lucide-react";
 import { useLibrary } from "@/stores/libraryStore";
 
 export default function Statistics() {
@@ -20,9 +20,10 @@ export default function Statistics() {
     { Icon: BarChart3, label: "Средний рейтинг", value: (tracks.reduce((s, t) => s + t.rating, 0) / Math.max(1, tracks.length)).toFixed(1) },
   ];
 
+
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold flex items-center gap-2"><BarChart3 className="size-5 text-brand" /> Статистика</h1>
+      <h1 className="text-2xl font-bold">Статистика</h1>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {cards.map((c) => (

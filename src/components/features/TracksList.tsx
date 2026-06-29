@@ -10,8 +10,9 @@ import { cn } from "@/lib/utils";
 
 export default function TracksList() {
   const tracks = useLibrary((s) => s.tracks);
+  const reorderTracksById = useLibrary((s) => s.reorderTracksById);
   const player = usePlayer();
-  const [sort, setSort] = useState<SortField>("date");
+  const [sort, setSort] = useState<SortField>("default");
   const [dir, setDir] = useState<SortDirection>("desc");
   const [yearFilter, setYearFilter] = useState<number | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -34,18 +35,25 @@ export default function TracksList() {
   const sorted = useMemo(() => {
     let list = [...tracks];
     if (yearFilter) list = list.filter((t) => t.year === yearFilter);
-    list.sort((a, b) => {
-      let r = 0;
-      if (sort === "date") r = a.addedAt - b.addedAt;
-      else if (sort === "title") r = a.title.localeCompare(b.title);
-      else if (sort === "artist") r = a.artist.localeCompare(b.artist);
-      else if (sort === "year") r = a.year - b.year;
-      return dir === "asc" ? r : -r;
-    });
+    if (sort !== "default") {
+      list.sort((a, b) => {
+        let r = 0;
+        if (sort === "date") r = a.addedAt - b.addedAt;
+        else if (sort === "title") r = a.title.localeCompare(b.title);
+        else if (sort === "artist") r = a.artist.localeCompare(b.artist);
+        else if (sort === "year") r = a.year - b.year;
+        return dir === "asc" ? r : -r;
+      });
+    }
     return list;
   }, [tracks, sort, dir, yearFilter]);
 
-  const years = useMemo(() => Array.from(new Set(tracks.map((t) => t.year))).sort((a, b) => b - a), [tracks]);
+  const years = useMemo(
+    () => Array.from(new Set(tracks.map((t) => t.year))).sort((a, b) => b - a),
+    [tracks]
+  );
+
+  const canReorder = sort === "default" && !yearFilter;
 
   const playFrom = (idx: number) => player.loadQueue(sorted, idx);
   const shuffleAll = () => {
@@ -146,9 +154,11 @@ export default function TracksList() {
             track={t}
             index={i}
             isPlaying={player.current?.id === t.id}
+            canReorder={canReorder}
             onPlay={() => playFrom(i)}
             onEdit={() => setEditId(t.id)}
             onTags={() => setTagId(t.id)}
+            onReorderDrop={(fromId) => reorderTracksById(fromId, t.id)}
           />
         ))}
       </div>
