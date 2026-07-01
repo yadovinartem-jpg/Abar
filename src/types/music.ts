@@ -2,7 +2,6 @@ export interface Tag {
   id: string;
   label: string;
   color: string;
-  visible: boolean;
 }
 
 export interface Track {
@@ -16,9 +15,9 @@ export interface Track {
   addedAt: number; // timestamp
   addedCount: number; // how many times added to main library
   globalAddedCount: number; // across all platform users
+  playCount: number; // times fully listened (≥30s)
   rating: number; // 1-5 stars
   isPrivate: boolean;
-  inRecommendations: boolean;
   tags: Tag[];
   lyrics?: string;
 }
@@ -52,3 +51,26 @@ export interface UserProfile {
 export type RepeatMode = "off" | "playlist" | "one";
 export type SortField = "default" | "date" | "title" | "artist" | "year";
 export type SortDirection = "asc" | "desc";
+
+export interface EqPreset {
+  name: string;
+  bands: number[];
+  qBands: number[];
+  builtIn?: boolean;
+}
+
+export interface PanelState {
+  x: number;
+  y: number;
+  bg?: string;
+  collapsed?: boolean;
+}
+
+export interface LayoutPreset {
+  id: string;
+  name: string;
+  panels: Record<string, PanelState>;
+  backgroundColor: string;
+  backgroundImage: string | null;
+  interactiveBackground: boolean;
+}

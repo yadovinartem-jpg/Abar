@@ -1,10 +1,9 @@
 import { useMemo, useState, useRef, useEffect } from "react";
-import { Filter, ChevronDown, ChevronUp, Shuffle, Star } from "lucide-react";
+import { Filter, ChevronDown, ChevronUp, Shuffle, ListMusic } from "lucide-react";
 import { useLibrary } from "@/stores/libraryStore";
 import { usePlayer } from "@/stores/playerStore";
 import TrackRow from "./TrackRow";
 import EditTrackModal from "./EditTrackModal";
-import TagEditorModal from "./TagEditorModal";
 import type { SortField, SortDirection } from "@/types/music";
 import { cn } from "@/lib/utils";
 
@@ -19,7 +18,6 @@ export default function TracksList() {
   const [yearOpen, setYearOpen] = useState(false);
   const filterRef = useRef<HTMLDivElement>(null);
   const [editId, setEditId] = useState<string | null>(null);
-  const [tagId, setTagId] = useState<string | null>(null);
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
@@ -56,34 +54,59 @@ export default function TracksList() {
   const canReorder = sort === "default" && !yearFilter;
 
   const playFrom = (idx: number) => player.loadQueue(sorted, idx);
-  const shuffleAll = () => {
-    const list = [...sorted].sort(() => Math.random() - 0.5);
-    player.loadQueue(list, 0);
-  };
-  const playByRating = () => {
-    const weighted = [...sorted].flatMap((t) => Array(t.rating).fill(t));
-    const list = weighted.sort(() => Math.random() - 0.5);
-    if (list.length) player.loadQueue(list, 0);
+
+  /**
+   * Weighted random by rating:
+   *  - rating 1 → excluded
+   *  - rating 2..5 → weight (2..5)^1.2  (5★ appears often but not overwhelming)
+   */
+  const smartShuffle = () => {
+    const pool = sorted.filter((t) => t.rating >= 2);
+    if (!pool.length) return;
+    const weights = pool.map((t) => Math.pow(t.rating, 1.2));
+    const total = weights.reduce((s, w) => s + w, 0);
+    const result: typeof pool = [];
+    const usedIdx = new Set<number>();
+    while (result.length < pool.length) {
+      let r = Math.random() * total;
+      for (let i = 0; i < pool.length; i++) {
+        if (usedIdx.has(i)) continue;
+        r -= weights[i];
+        if (r <= 0) {
+          usedIdx.add(i);
+          result.push(pool[i]);
+          break;
+        }
+      }
+      // safety
+      if (result.length === pool.length) break;
+    }
+    // fallback: fill remainder if any
+    pool.forEach((t) => { if (!result.includes(t)) result.push(t); });
+    player.loadQueue(result, 0);
   };
 
   return (
     <section>
       <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
-        <h2 className="text-xl font-bold">Треки</h2>
         <div className="flex items-center gap-2">
           <button
-            onClick={shuffleAll}
-            className="px-3 py-1.5 rounded-lg bg-elevated hover:bg-subtle text-xs flex items-center gap-1.5 font-medium"
+            onClick={smartShuffle}
+            className="text-xl font-bold hover:text-brand transition-colors flex items-center gap-2"
+            title="Случайное воспроизведение (с приоритетом по звёздам)"
           >
-            <Shuffle className="size-3.5" /> Случайно
+            <ListMusic className="size-5 text-brand" />
+            Треки
           </button>
           <button
-            onClick={playByRating}
-            className="px-3 py-1.5 rounded-lg bg-elevated hover:bg-subtle text-xs flex items-center gap-1.5 font-medium"
+            onClick={smartShuffle}
+            className="size-8 rounded-md grid place-items-center text-muted-foreground hover:text-foreground hover:bg-elevated transition-colors"
+            title="Случайное воспроизведение"
           >
-            <Star className="size-3.5" /> По рейтингу
+            <Shuffle className="size-4" />
           </button>
         </div>
+
         <div ref={filterRef} className="relative">
           <button
             onClick={() => setFilterOpen((o) => !o)}
@@ -150,21 +173,19 @@ export default function TracksList() {
       <div className="bg-panel rounded-2xl border border-border/50 p-2">
         {sorted.map((t, i) => (
           <TrackRow
-            key={t.id + i}
+            key={t.id + "-" + i}
             track={t}
             index={i}
             isPlaying={player.current?.id === t.id}
             canReorder={canReorder}
             onPlay={() => playFrom(i)}
             onEdit={() => setEditId(t.id)}
-            onTags={() => setTagId(t.id)}
             onReorderDrop={(fromId) => reorderTracksById(fromId, t.id)}
           />
         ))}
       </div>
 
       <EditTrackModal trackId={editId} onClose={() => setEditId(null)} />
-      <TagEditorModal trackId={tagId} onClose={() => setTagId(null)} />
     </section>
   );
 }

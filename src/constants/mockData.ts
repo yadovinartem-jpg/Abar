@@ -1,4 +1,4 @@
-import type { Track, Playlist, Artist, UserProfile, Tag } from "@/types/music";
+import type { Track, Playlist, Artist, UserProfile, Tag, EqPreset } from "@/types/music";
 
 const COVERS = [
   "https://images.unsplash.com/photo-1611339555312-e607c8352fd7?w=400&h=400&fit=crop",
@@ -27,7 +27,6 @@ const ARTISTS_NAMES = [
   "Мумий Тролль", "Сплин", "Земфира", "Дельфин", "Каста", "Многоточие",
 ];
 
-// Canonical "Genius" names (mock normalization map)
 export const GENIUS_ARTIST_NAMES: Record<string, string> = {
   "хлеб": "Хлеб",
   "молчат дома": "Молчат Дома",
@@ -51,20 +50,20 @@ const TITLES = [
   "Тишина", "Звёзды", "Ветер", "Лабиринт", "Зеркало", "Пыль",
 ];
 
-const TAG_COLORS = [
+export const TAG_COLORS = [
   "#a855f7", "#c084fc", "#ec4899", "#f59e0b", "#10b981",
   "#06b6d4", "#ef4444", "#84cc16", "#f97316", "#8b5cf6",
 ];
 
 const SAMPLE_TAGS: Tag[][] = [
-  [{ id: "t1", label: "вайб", color: "#a855f7", visible: true }],
-  [{ id: "t2", label: "за рулём", color: "#c084fc", visible: true }, { id: "t3", label: "вечер", color: "#ec4899", visible: true }],
-  [{ id: "t4", label: "тренировка", color: "#f59e0b", visible: true }],
+  [{ id: "t1", label: "вайб", color: "#a855f7" }],
+  [{ id: "t2", label: "за рулём", color: "#c084fc" }, { id: "t3", label: "вечер", color: "#ec4899" }],
+  [{ id: "t4", label: "тренировка", color: "#f59e0b" }],
   [],
-  [{ id: "t5", label: "лето", color: "#10b981", visible: true }],
-  [{ id: "t6", label: "грусть", color: "#06b6d4", visible: true }],
+  [{ id: "t5", label: "лето", color: "#10b981" }],
+  [{ id: "t6", label: "грусть", color: "#06b6d4" }],
   [],
-  [{ id: "t7", label: "хит", color: "#ef4444", visible: true }, { id: "t8", label: "бэнгер", color: "#84cc16", visible: true }],
+  [{ id: "t7", label: "хит", color: "#ef4444" }, { id: "t8", label: "бэнгер", color: "#84cc16" }],
 ];
 
 const SAMPLE_LYRICS = `[Куплет 1]
@@ -100,9 +99,9 @@ export const MOCK_TRACKS: Track[] = Array.from({ length: 28 }, (_, i) => ({
   addedAt: Date.now() - i * 3600 * 1000 * 12,
   addedCount: i % 4 === 0 ? 0 : (i % 3) + 1,
   globalAddedCount: Math.floor(Math.random() * 1500),
+  playCount: Math.floor(Math.random() * 40),
   rating: ((i % 5) + 1),
   isPrivate: false,
-  inRecommendations: i % 7 !== 0,
   tags: SAMPLE_TAGS[i % SAMPLE_TAGS.length] ?? [],
   lyrics: SAMPLE_LYRICS,
 }));
@@ -144,4 +143,19 @@ export const CURRENT_USER: UserProfile = {
   avatar: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=200&h=200&fit=crop",
 };
 
-export { TAG_COLORS };
+export const APP_VERSION = "0.6";
+
+export const EQ_FREQUENCIES = ["32", "64", "125", "250", "500", "1к", "2к", "4к", "8к", "16к"];
+
+export const BUILTIN_EQ_PRESETS: EqPreset[] = [
+  { name: "Плоский", bands: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], qBands: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], builtIn: true },
+  { name: "Джаз", bands: [3, 2, 1, 2, -1, -1, 0, 1, 2, 3], qBands: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], builtIn: true },
+  { name: "Блюз", bands: [4, 3, 2, 1, -1, -2, -1, 1, 2, 3], qBands: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], builtIn: true },
+  { name: "Фолк", bands: [2, 1, 0, 2, 3, 2, 1, 0, 1, 2], qBands: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], builtIn: true },
+  { name: "Хип-хоп", bands: [5, 4, 2, 3, -1, -1, 1, -1, 2, 3], qBands: [1.2, 1.2, 1, 1, 1, 1, 1, 1, 1, 1], builtIn: true },
+  { name: "Зал", bands: [-2, -1, 0, 2, 3, 3, 2, 1, -1, -2], qBands: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], builtIn: true },
+  { name: "Концерт", bands: [3, 2, 1, 0, -1, 0, 1, 2, 3, 4], qBands: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], builtIn: true },
+  { name: "Струнные", bands: [-1, -2, 0, 2, 3, 2, 1, 3, 4, 3], qBands: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], builtIn: true },
+  { name: "Рок", bands: [4, 3, -1, -2, -1, 1, 3, 4, 4, 5], qBands: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], builtIn: true },
+  { name: "Поп", bands: [-1, 1, 3, 4, 3, 1, -1, -1, 1, 2], qBands: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], builtIn: true },
+];

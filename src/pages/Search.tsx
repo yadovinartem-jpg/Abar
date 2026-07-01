@@ -24,7 +24,9 @@ export default function Search() {
       </aside>
       <main className="col-span-12 lg:col-span-9 space-y-6">
         <div>
-          <h1 className="text-2xl font-bold mb-3">Поиск</h1>
+          <h1 className="text-2xl font-bold mb-3 flex items-center gap-2">
+            <SearchIcon className="size-5 text-brand" /> Поиск
+          </h1>
           <div className="relative max-w-2xl">
             <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-muted-foreground" />
             <input

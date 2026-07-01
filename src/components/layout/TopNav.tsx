@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import ProfileMenu from "@/components/features/ProfileMenu";
 import UploadMenu from "@/components/features/UploadMenu";
 import { CURRENT_USER } from "@/constants/mockData";
+import logo from "@/assets/abar-logo.png";
 
 const tabs = [
   { to: "/my-music", label: "Моя музыка" },
@@ -35,11 +36,9 @@ export default function TopNav() {
   return (
     <div className="px-4 pt-3">
       <div className="mx-auto max-w-[1280px] flex items-center gap-4 px-2">
-        {/* logo — non-clickable */}
+        {/* logo — non-clickable, uses provided image */}
         <div className="flex items-center gap-2 mr-2 select-none">
-          <div className="size-8 rounded-full bg-gradient-to-br from-brand to-brand/40 grid place-items-center font-extrabold text-white text-[13px] shadow-md shadow-brand/30">
-            A
-          </div>
+          <img src={logo} alt="ABAR" className="size-9 object-contain" />
           <div className="text-[15px] font-extrabold tracking-wide">ABAR</div>
         </div>
 

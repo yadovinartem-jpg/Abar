@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowRightLeft, Check } from "lucide-react";
+import { Plug2, Check } from "lucide-react";
 import { toast } from "sonner";
 import Modal from "@/components/features/Modal";
 import { cn } from "@/lib/utils";
@@ -9,7 +9,7 @@ interface Service { key: ServiceKey; name: string; color: string; connected: boo
 
 const initialServices: Service[] = [
   { key: "vk", name: "ВКонтакте", color: "#0077ff", connected: true },
-  { key: "yandex", name: "Яндекс.Музыка", color: "#ffcc00", connected: false },
+  { key: "yandex", name: "Яндекс Музыка", color: "#ffcc00", connected: false },
   { key: "spotify", name: "Spotify", color: "#1ed760", connected: true },
 ];
 
@@ -21,11 +21,6 @@ export default function Integrations() {
   const [authService, setAuthService] = useState<Service | null>(null);
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
-
-  // transfer form
-  const [transferFrom, setTransferFrom] = useState<ServiceKey>("spotify");
-  const [transferPlaylists, setTransferPlaylists] = useState(true);
-  const [transferTracks, setTransferTracks] = useState(true);
 
   const submitAuth = () => {
     if (!authService) return;
@@ -40,29 +35,18 @@ export default function Integrations() {
     setPassword("");
   };
 
-  const handleTransfer = () => {
-    const fromName = services.find((s) => s.key === transferFrom)?.name ?? "сервиса";
-    const parts: string[] = [];
-    if (transferPlaylists) parts.push("плейлисты");
-    if (transferTracks) parts.push("треки");
-    if (!parts.length) {
-      toast.error("Выберите, что переносить");
-      return;
-    }
-    toast.success(`Перенос: ${parts.join(" и ")} из ${fromName}`);
-  };
-
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold mb-1">Интеграции</h1>
+        <h1 className="text-2xl font-bold mb-1 flex items-center gap-2">
+          <Plug2 className="size-5 text-brand" /> Интеграции
+        </h1>
         <p className="text-sm text-muted-foreground max-w-2xl">
           Подключите внешние сервисы для переноса треков и использования рекомендаций.
         </p>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* left column: vk, yandex, spotify */}
         <div className="space-y-3">
           {services.map((s) => (
             <ServiceCard
@@ -77,7 +61,6 @@ export default function Integrations() {
           ))}
         </div>
 
-        {/* right column: genius + transfer */}
         <div className="space-y-3">
           <ServiceCard
             service={genius}
@@ -87,62 +70,6 @@ export default function Integrations() {
               toast.message("Genius отключён");
             }}
           />
-
-          <div className="bg-panel border border-border/50 rounded-2xl p-4 space-y-4">
-            <div>
-              <div className="text-sm font-semibold mb-0.5">Перенос треков</div>
-              <div className="text-xs text-muted-foreground">
-                Импортируйте плейлисты и треки из подключённой платформы.
-              </div>
-            </div>
-
-            <div>
-              <div className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">
-                Платформа
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                {services.map((s) => (
-                  <button
-                    key={s.key}
-                    onClick={() => setTransferFrom(s.key)}
-                    className={cn(
-                      "px-3 py-2 rounded-lg text-xs font-medium border transition-colors",
-                      transferFrom === s.key
-                        ? "bg-brand/15 text-brand border-brand/40"
-                        : "bg-elevated border-border hover:bg-subtle"
-                    )}
-                  >
-                    {s.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <div className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">
-                Что переносим
-              </div>
-              <div className="space-y-1.5">
-                <CheckboxRow
-                  label="Плейлисты"
-                  checked={transferPlaylists}
-                  onChange={setTransferPlaylists}
-                />
-                <CheckboxRow
-                  label="Треки"
-                  checked={transferTracks}
-                  onChange={setTransferTracks}
-                />
-              </div>
-            </div>
-
-            <button
-              onClick={handleTransfer}
-              className="w-full px-4 py-2.5 rounded-lg bg-brand hover:bg-brand/90 text-white text-sm font-semibold flex items-center justify-center gap-2 shadow-lg shadow-brand/20"
-            >
-              <ArrowRightLeft className="size-4" /> Перенести
-            </button>
-          </div>
         </div>
       </div>
 
@@ -234,26 +161,5 @@ function ServiceCard({
         </button>
       )}
     </div>
-  );
-}
-
-function CheckboxRow({
-  label, checked, onChange,
-}: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
-  return (
-    <button
-      onClick={() => onChange(!checked)}
-      className="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-elevated/60 text-left"
-    >
-      <div
-        className={cn(
-          "size-5 rounded grid place-items-center transition-colors",
-          checked ? "bg-brand text-white" : "bg-elevated"
-        )}
-      >
-        {checked && <Check className="size-3.5" />}
-      </div>
-      <div className="text-sm font-medium">{label}</div>
-    </button>
   );
 }

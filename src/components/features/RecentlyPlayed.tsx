@@ -19,7 +19,6 @@ export default function RecentlyPlayed() {
     scroller.current?.scrollBy({ left: dir * 360, behavior: "smooth" });
   };
 
-  // group into columns of 3
   const cols: typeof list[] = [];
   for (let i = 0; i < list.length; i += 3) cols.push(list.slice(i, i + 3));
 
@@ -37,36 +36,34 @@ export default function RecentlyPlayed() {
         </div>
       </div>
 
-      <div className="bg-panel rounded-2xl p-4 border border-border/50">
-        <div ref={scroller} onScroll={() => force((n) => n + 1)} className="overflow-x-auto scroll-smooth">
-          <div className="flex gap-3 min-w-max">
-            {cols.map((col, ci) => (
-              <div key={ci} className="flex flex-col gap-2 w-[340px]">
-                {col.map((t) => {
-                  const isCurr = t.id === currentId;
-                  return (
-                    <button
-                      key={t.id}
-                      onClick={() => loadQueue(list, list.findIndex((x) => x.id === t.id))}
-                      className="group flex items-center gap-3 px-2 py-1.5 rounded-lg hover:bg-elevated/70 text-left transition-colors"
-                    >
-                      <div className="relative size-12 rounded-md overflow-hidden bg-elevated shrink-0">
-                        <img src={t.cover} alt="" className="size-full object-cover" />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 grid place-items-center transition-opacity">
-                          <Play className="size-4 text-white" fill="white" />
-                        </div>
+      <div ref={scroller} onScroll={() => force((n) => n + 1)} className="overflow-x-auto scroll-smooth">
+        <div className="flex gap-3 min-w-max pb-2">
+          {cols.map((col, ci) => (
+            <div key={ci} className="flex flex-col gap-2 w-[340px]">
+              {col.map((t) => {
+                const isCurr = t.id === currentId;
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => loadQueue(list, list.findIndex((x) => x.id === t.id))}
+                    className="group flex items-center gap-3 px-2 py-1.5 rounded-lg hover:bg-elevated/70 text-left transition-colors"
+                  >
+                    <div className="relative size-12 rounded-md overflow-hidden bg-elevated shrink-0">
+                      <img src={t.cover} alt="" className="size-full object-cover" />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 grid place-items-center transition-opacity">
+                        <Play className="size-4 text-white" fill="white" />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className={`text-sm font-medium truncate ${isCurr ? "text-brand" : ""}`}>{t.title}</div>
-                        <div className="text-xs text-muted-foreground truncate">{t.artist}</div>
-                      </div>
-                      <div className="text-xs text-muted-foreground tabular-nums">{formatTime(t.duration)}</div>
-                    </button>
-                  );
-                })}
-              </div>
-            ))}
-          </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className={`text-sm font-medium truncate ${isCurr ? "text-brand" : ""}`}>{t.title}</div>
+                      <div className="text-xs text-muted-foreground truncate">{t.artist}</div>
+                    </div>
+                    <div className="text-xs text-muted-foreground tabular-nums">{formatTime(t.duration)}</div>
+                  </button>
+                );
+              })}
+            </div>
+          ))}
         </div>
       </div>
     </section>

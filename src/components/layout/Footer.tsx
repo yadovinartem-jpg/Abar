@@ -1,41 +1,35 @@
+import { Skull, Radiation, Heart } from "lucide-react";
+import { APP_VERSION } from "@/constants/mockData";
+import logo from "@/assets/abar-logo.png";
+
 const team = [
-  {
-    name: "FORSITY",
-    avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop",
-  },
-  {
-    name: "ZERROW",
-    avatar: "https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=200&h=200&fit=crop",
-  },
-  {
-    name: "Котейка",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop",
-  },
+  { name: "FORSITY", Icon: Skull },
+  { name: "ZERROW", Icon: Radiation },
+  { name: "Котейка", Icon: Heart },
 ];
 
 export default function Footer() {
   return (
     <footer className="pt-12 pb-4 border-t border-border/40 mt-12">
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mb-5">
-        {team.map((m) => (
-          <div key={m.name} className="flex items-center gap-2">
-            <img src={m.avatar} alt="" className="size-8 rounded-full object-cover ring-1 ring-border/60" />
-            <span className="text-sm font-semibold tracking-wide text-foreground/80">{m.name}</span>
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mb-4">
+        {team.map(({ name, Icon }) => (
+          <div key={name} className="flex items-center gap-1.5">
+            <div className="size-7 rounded-full grid place-items-center text-muted-foreground">
+              <Icon className="size-[18px]" strokeWidth={1.75} />
+            </div>
+            <span className="text-[13px] font-normal tracking-wide text-muted-foreground">{name}</span>
           </div>
         ))}
       </div>
 
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        <span>©</span>
-        <span className="size-5 rounded-full bg-gradient-to-br from-brand to-brand/40 grid place-items-center text-[10px] font-extrabold text-white">
-          A
-        </span>
-        <span className="font-bold tracking-wide text-foreground/70">ABAR</span>
-        <span className="opacity-50">·</span>
-        <span className="font-medium">FORSITY Interteiment</span>
-        <span className="opacity-50">·</span>
+      <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+        <img src={logo} alt="" className="size-4 object-contain opacity-80" />
+        <span className="font-bold tracking-wide text-foreground/70">ABAR v{APP_VERSION}</span>
+        <span className="opacity-40">·</span>
+        <span>FORSITY Interteiment</span>
+        <span className="opacity-40">·</span>
         <span>2026</span>
-        <span className="opacity-50">·</span>
+        <span className="opacity-40">·</span>
         <span className="flex items-center gap-1">
           Russia
           <span className="inline-flex w-4 h-3 overflow-hidden rounded-[2px] ring-1 ring-border/60">

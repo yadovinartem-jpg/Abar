@@ -13,7 +13,7 @@ import type { Playlist, Track } from "@/types/music";
 interface Props {
   playlist: Playlist | null;
   onClose: () => void;
-  artistMode?: boolean; // no edit/delete in artist mode
+  artistMode?: boolean;
 }
 
 export default function PlaylistDetailModal({ playlist, onClose, artistMode = false }: Props) {
@@ -23,6 +23,7 @@ export default function PlaylistDetailModal({ playlist, onClose, artistMode = fa
   const [draft, setDraft] = useState<Partial<Playlist>>({});
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [search, setSearch] = useState("");
+  const [dragFromIdx, setDragFromIdx] = useState<number | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -90,6 +91,8 @@ export default function PlaylistDetailModal({ playlist, onClose, artistMode = fa
         .slice(0, 8)
     : [];
 
+  const canReorderTracks = !artistMode;
+
   return (
     <Modal open={!!playlist} onClose={onClose} title="" className="max-w-3xl">
       <div className="relative">
@@ -123,7 +126,6 @@ export default function PlaylistDetailModal({ playlist, onClose, artistMode = fa
 
         <div className="space-y-5">
           <div className="grid grid-cols-[200px_1fr] gap-5 relative">
-            {/* delete button — top right of info area */}
             {!artistMode && !editing && (
               <button
                 onClick={() => setConfirmDelete(true)}
@@ -134,7 +136,6 @@ export default function PlaylistDetailModal({ playlist, onClose, artistMode = fa
               </button>
             )}
 
-            {/* cover */}
             <div>
               <input ref={fileRef} type="file" accept="image/*" hidden onChange={handleFile} />
               <div
@@ -164,7 +165,6 @@ export default function PlaylistDetailModal({ playlist, onClose, artistMode = fa
               )}
             </div>
 
-            {/* info */}
             <div className="flex flex-col min-w-0">
               {editing ? (
                 <>
@@ -208,7 +208,6 @@ export default function PlaylistDetailModal({ playlist, onClose, artistMode = fa
                 </>
               )}
 
-              {/* actions */}
               <div className="flex items-center gap-2 mt-auto flex-wrap">
                 {!editing ? (
                   <>
@@ -255,9 +254,9 @@ export default function PlaylistDetailModal({ playlist, onClose, artistMode = fa
                     </button>
                     <button
                       onClick={() => setEditing(false)}
-                      className="px-4 py-2 rounded-lg bg-elevated hover:bg-subtle text-sm"
+                      className="px-4 py-2 rounded-lg bg-destructive hover:bg-destructive/90 text-white text-sm font-semibold"
                     >
-                      Отмена
+                      Отменить изменения
                     </button>
                     <button
                       onClick={() => setDraft({ ...draft, isPublic: !draft.isPublic })}
@@ -272,22 +271,12 @@ export default function PlaylistDetailModal({ playlist, onClose, artistMode = fa
                       {draft.isPublic ? <Eye className="size-3.5" /> : <EyeOff className="size-3.5" />}
                       {draft.isPublic ? "Виден в поиске" : "Скрыт"}
                     </button>
-                    <div className="ml-auto">
-                      <button
-                        onClick={() => setEditing(false)}
-                        className="size-10 rounded-full bg-brand/15 ring-2 ring-brand grid place-items-center text-brand"
-                        title="Режим редактирования"
-                      >
-                        <Pencil className="size-4" />
-                      </button>
-                    </div>
                   </>
                 )}
               </div>
             </div>
           </div>
 
-          {/* track search in edit mode */}
           {editing && (
             <div className="bg-elevated/40 rounded-xl p-3 space-y-2">
               <div className="relative">
@@ -328,7 +317,6 @@ export default function PlaylistDetailModal({ playlist, onClose, artistMode = fa
             </div>
           )}
 
-          {/* tracks */}
           <div className="bg-panel/40 rounded-xl p-2 max-h-96 overflow-auto">
             {tracks.length === 0 ? (
               <div className="text-center py-10">
@@ -341,16 +329,31 @@ export default function PlaylistDetailModal({ playlist, onClose, artistMode = fa
                 return (
                   <div
                     key={t.id + i}
+                    onDragOver={canReorderTracks ? (e) => e.preventDefault() : undefined}
+                    onDrop={canReorderTracks ? (e) => {
+                      e.preventDefault();
+                      if (dragFromIdx !== null && dragFromIdx !== i) {
+                        lib.reorderPlaylistTracks(playlist.id, dragFromIdx, i);
+                      }
+                      setDragFromIdx(null);
+                    } : undefined}
                     className={cn(
-                      "grid grid-cols-[28px_44px_1fr_auto_auto] items-center gap-3 px-2 py-1.5 rounded-md transition-colors",
+                      "grid grid-cols-[48px_44px_1fr_auto_auto] items-center gap-3 px-2 py-1.5 rounded-md transition-colors",
                       isCurr ? "bg-brand/12" : "hover:bg-elevated/60"
                     )}
                   >
                     <div
+                      draggable={canReorderTracks}
+                      onDragStart={canReorderTracks ? (e) => {
+                        e.dataTransfer.effectAllowed = "move";
+                        setDragFromIdx(i);
+                      } : undefined}
                       className={cn(
-                        "text-xs tabular-nums text-center",
-                        isCurr ? "text-brand font-semibold" : "text-muted-foreground"
+                        "text-base font-semibold tabular-nums text-center size-10 grid place-items-center rounded-md select-none",
+                        canReorderTracks && "cursor-grab active:cursor-grabbing hover:bg-elevated/50",
+                        isCurr ? "text-brand" : "text-muted-foreground"
                       )}
+                      title={canReorderTracks ? "Перетащите для смены позиции" : undefined}
                     >
                       {i + 1}
                     </div>
